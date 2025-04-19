@@ -66,7 +66,6 @@
                             <label for="password-confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}</label>
                             <div class="col-md-6">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
-                                {{-- L'erreur de confirmation est généralement liée au champ 'password' --}}
                             </div>
                         </div>
 
@@ -100,11 +99,29 @@
                             </div>
                         </div>
 
-                         {{-- City (Optionnel) --}}
+                         {{-- City (Dropdown - Optionnel) --}}
                         <div class="row mb-3">
                             <label for="city" class="col-md-4 col-form-label text-md-end">{{ __('City') }} <small class="text-muted">({{ __('Optional') }})</small></label>
                             <div class="col-md-6">
-                                <input id="city" type="text" class="form-control @error('city') is-invalid @enderror" name="city" value="{{ old('city') }}" autocomplete="address-level2">
+                                {{-- Remplacement de l'input par un select --}}
+                                <select id="city" class="form-select @error('city') is-invalid @enderror" name="city">
+                                    {{-- Option vide pour le caractère optionnel --}}
+                                    <option value="" {{ old('city', '') == '' ? 'selected' : '' }}>{{ __('-- Select City (Optional) --') }}</option>
+
+                                    {{-- Boucle sur les villes passées par le contrôleur --}}
+                                    @isset($cities) {{-- Vérifie que la variable $cities existe --}}
+                                        @foreach ($cities as $cityValue)
+                                            <option value="{{ $cityValue }}" {{ old('city') == $cityValue ? 'selected' : '' }}>
+                                                {{ $cityValue }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        {{-- Message si la liste n'est pas disponible (ne devrait pas arriver) --}}
+                                        <option value="" disabled>{{ __('City list unavailable') }}</option>
+                                    @endisset
+                                </select>
+
+                                {{-- Affichage de l'erreur spécifique à la ville --}}
                                 @error('city')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -152,9 +169,9 @@
                             </div>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                </div> {{-- fin card-body --}}
+            </div> {{-- fin card --}}
+        </div> {{-- fin col-md-8 --}}
+    </div> {{-- fin row --}}
+</div> {{-- fin container --}}
 @endsection

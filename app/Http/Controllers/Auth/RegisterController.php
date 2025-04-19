@@ -8,38 +8,42 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Auth\Events\Registered; // Pour l'événement d'enregistrement si besoin
-use Illuminate\Validation\Rule; // Pour la validation du rôle
+// use Illuminate\Auth\Events\Registered; // Décommentez si vous l'utilisez
+use Illuminate\Validation\Rule; // Assurez-vous que cette ligne est présente
 
 class RegisterController extends Controller
 {
-    /**
-     * Where to redirect users after registration.
-     * On le gère dynamiquement dans la méthode register()
-     *
-     * @var string
-     */
-    // protected $redirectTo = '/dashboard'; // Vous pouvez le laisser ou le commenter
+    // Liste des villes marocaines (vous pouvez l'étendre ou la déplacer dans un fichier config)
+    protected $moroccanCities = [
+        'Agadir', 'Al Hoceima', 'Asilah', 'Azemmour', 'Azrou',
+        'Beni Mellal', 'Berkane', 'Berrechid', 'Boujdour', 'Bouznika',
+        'Casablanca', 'Chefchaouen', 'Dakhla', 'El Jadida', 'Errachidia',
+        'Essaouira', 'Fes', 'Figuig', 'Fnideq', 'Guelmim',
+        'Ifrane', 'Imzouren', 'Kenitra', 'Khemisset', 'Khenifra',
+        'Khouribga', 'Ksar El Kebir', 'Laayoune', 'Larache', 'Marrakech',
+        'Martil', 'Meknes', 'Midelt', 'Mohammedia', 'Nador',
+        'Ouarzazate', 'Ouezzane', 'Oujda', 'Rabat', 'Safi',
+        'Sale', 'Sefrou', 'Settat', 'Sidi Bennour', 'Sidi Ifni',
+        'Sidi Kacem', 'Sidi Slimane', 'Skhrirate', 'Smara', 'Souk El Arbaa',
+        'Tan-Tan', 'Tangier', 'Taourirt', 'Taroudant', 'Taza',
+        'Temara', 'Tetouan', 'Tiflet', 'Tinghir', 'Tiznit', 'Youssoufia', 'Zagora'
+        // Ajoutez plus de villes si nécessaire
+    ];
 
-    /**
-     * Create a new controller instance.
-     * Applique le middleware 'guest' pour que les utilisateurs connectés ne voient pas cette page.
-     *
-     * @return void
-     */
     public function __construct()
     {
-        $this->middleware('guest'); // <-- L'appel qui causait problème
+        $this->middleware('guest');
     }
 
     /**
-     * Affiche le formulaire d'enregistrement.
+     * Affiche le formulaire d'enregistrement en passant la liste des villes.
      *
      * @return \Illuminate\View\View
      */
     public function showRegistrationForm()
     {
-        return view('auth.register');
+        // Passe la liste des villes à la vue
+        return view('auth.register', ['cities' => $this->moroccanCities]);
     }
 
     /**
@@ -50,33 +54,25 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-        // 1. Validation des données
         $validator = $this->validator($request->all());
 
         if ($validator->fails()) {
             return redirect()->back()
                         ->withErrors($validator)
-                        ->withInput(); // Garde les anciennes entrées
+                        ->withInput();
         }
 
-        // 2. Gestion de l'upload de la photo de profil (si fournie)
         $profilePhotoPath = null;
         if ($request->hasFile('profile_photo') && $request->file('profile_photo')->isValid()) {
-            // Stocke l'image dans storage/app/public/profile_photos
-            // Assurez-vous d'avoir lancé `php artisan storage:link`
             $profilePhotoPath = $request->file('profile_photo')->store('profile_photos', 'public');
         }
 
-        // 3. Création de l'utilisateur
         $user = $this->create($request->all(), $profilePhotoPath);
 
-        // Optionnel: Déclencher un événement si nécessaire (ex: email de vérification)
-        // event(new Registered($user));
+        // event(new Registered($user)); // Décommentez si vous l'utilisez
 
-        // 4. Connexion automatique de l'utilisateur après enregistrement
         Auth::login($user);
 
-        // 5. Redirection vers le tableau de bord approprié
         $welcomeMessage = 'Bienvenue, ' . $user->name . '! Votre compte a été créé.';
 
         switch ($user->role) {
@@ -85,7 +81,6 @@ class RegisterController extends Controller
             case 'provider':
                 return redirect()->route('provider.dashboard')->with('status', $welcomeMessage);
             default:
-                // Fallback (ne devrait pas arriver avec la validation, mais par sécurité)
                  return redirect()->route('login')->with('status', 'Compte créé. Veuillez vous connecter.');
         }
     }
@@ -98,14 +93,18 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        // Récupère la liste des villes pour la validation
+        $cityList = $this->moroccanCities;
+
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'], // 'unique:users' vérifie l'unicité dans la table users
-            'password' => ['required', 'string', 'min:8', 'confirmed'], // 'confirmed' cherche un champ 'password_confirmation'
-            'role' => ['required', 'string', Rule::in(['client', 'provider'])], // Assure que seul 'client' ou 'provider' est choisi
-            'phone' => ['nullable', 'string', 'max:20'], // Exemple de validation simple
-            'city' => ['nullable', 'string', 'max:100'],
-            'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Image, types autorisés, taille max 2Mo
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', 'string', Rule::in(['client', 'provider'])],
+            'phone' => ['nullable', 'string', 'max:20'],
+            // Validation pour la ville: optionnelle, mais si fournie, doit être dans la liste
+            'city' => ['nullable', 'string', Rule::in($cityList)],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'bio' => ['nullable', 'string'],
         ]);
     }
@@ -122,11 +121,12 @@ class RegisterController extends Controller
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']), // Hashage du mot de passe
+            'password' => Hash::make($data['password']),
             'role' => $data['role'],
             'phone' => $data['phone'] ?? null,
+            // S'assurer que 'city' existe même si elle est vide/null
             'city' => $data['city'] ?? null,
-            'profile_photo' => $profilePhotoPath, // Chemin stocké ou null
+            'profile_photo' => $profilePhotoPath,
             'bio' => $data['bio'] ?? null,
         ]);
     }
