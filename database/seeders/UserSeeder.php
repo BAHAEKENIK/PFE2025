@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
 
         // 1. Créer l'administrateur unique
         User::factory()->create([
-            'name' => 'Admin User',
+            'name' => 'BAHAE KENIKSSI',
             'email' => 'bahaekenik@gmail.com', // Utilisez une adresse email spécifique et facile à retenir
             'password' => Hash::make('BAHAE8672Bahae'), // Utilisez un mot de passe spécifique pour l'admin
             'role' => 'admin',

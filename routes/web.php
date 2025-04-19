@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
@@ -12,6 +13,15 @@ use App\Http\Controllers\Provider\DashboardController as ProviderDashboardContro
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
+// routes/web.php
+
+
+// Applique le middleware 'guest' à ces deux routes
+Route::middleware('guest')->group(function () {
+    Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('register', [RegisterController::class, 'register']);
+});
 
 // Routes de réinitialisation de mot de passe (Flux personnalisé)
 Route::get('forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request'); // Étape 1: Formulaire email

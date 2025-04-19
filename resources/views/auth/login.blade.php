@@ -61,7 +61,8 @@
                         </div>
                         --}}
 
-                        <div class="d-flex justify-content-between align-items-center">
+                        {{-- Bouton Login et lien Mot de passe oublié --}}
+                        <div class="d-flex justify-content-between align-items-center mb-3"> {{-- Ajout de mb-3 pour l'espacement --}}
                              <button type="submit" class="btn btn-primary">
                                 {{ __('Login') }}
                             </button>
@@ -72,10 +73,21 @@
                                 </a>
                             @endif
                         </div>
+
+                        {{-- Lien vers la page d'enregistrement --}}
+                        <div class="text-center"> {{-- Centre le lien --}}
+                            @if (Route::has('register'))
+                                <a href="{{ route('register') }}">
+                                    {{ __("Don't have an account? Register here") }}
+                                    {{-- Ou: {{ __('Pas encore de compte ? S\'inscrire') }} --}}
+                                </a>
+                            @endif
+                        </div>
+
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                </div> {{-- Fin card-body --}}
+            </div> {{-- Fin card --}}
+        </div> {{-- Fin col-md-6 --}}
+    </div> {{-- Fin row --}}
+</div> {{-- Fin container --}}
 @endsection
