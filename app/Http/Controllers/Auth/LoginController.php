@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User; // Assurez-vous que le modèle User est importé
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use App\Models\User; // Assurez-vous que le modèle User est importé
 
 class LoginController extends Controller
 {
@@ -25,8 +25,8 @@ class LoginController extends Controller
     {
         // 1. Validation
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+            'email' => ['required', 'email','unique:users'],
+            'password' => ['required','string','min:6']
         ]);
 
         // 2. Tentative de connexion
@@ -59,9 +59,7 @@ class LoginController extends Controller
         ]);
 
         // Alternative pour l'échec (si vous n'utilisez pas ValidationException)
-        // return back()->withErrors([
-        //     'email' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
-        // ])->onlyInput('email');
+      //  return back()->withErrors(['email'=> 'Invalid email or password.'])->onlyInput('email');
     }
 
     /**

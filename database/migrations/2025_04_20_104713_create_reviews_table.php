@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('service_request_id')->constrained('service_requests')->onDelete('cascade');
-            $table->foreignId('client_id')->constrained('users');
-            $table->foreignId('provider_id')->constrained('users');
+            $table->foreignId('client_id')->constrained('clients');
+            $table->foreignId('provider_id')->constrained('providers');
             $table->integer('rating')->checkBetween(1, 5); // Custom helper or DB-level check
             $table->text('comment')->nullable();
             $table->timestamps();

@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('service_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('users');
-            $table->foreignId('provider_id')->constrained('users');
+            $table->foreignId('client_id')->constrained('clients');
+            $table->foreignId('provider_id')->constrained('providers');
             $table->foreignId('service_id')->constrained('services');
             $table->string('full_name');
+            $table->text("description");
             $table->text('address');
             $table->decimal('budget', 10, 2);
             $table->date('service_date');
