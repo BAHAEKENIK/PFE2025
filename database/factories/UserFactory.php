@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\User; // Assurez-vous que le chemin vers votre modèle User est correct
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -32,40 +32,56 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            // 'email_verified_at' => now(), // Décommentez si vous avez cette colonne et souhaitez la remplir
-            'password' => static::$password ??= Hash::make('password'), // Définit un mot de passe par défaut "password"
-            'role' => 'client', // Par défaut, crée des clients
-            'phone' => $this->faker->optional()->phoneNumber(), // Rend le téléphone optionnel (peut être null)
-            'city' => $this->faker->optional()->city(),      // Rend la ville optionnelle
-            'profile_photo' => null, // Vous pouvez mettre une URL d'image placeholder si vous voulez
-            'bio' => $this->faker->optional()->paragraph(2), // Rend la bio optionnelle
-            // 'remember_token' => Str::random(10), // Décommentez si vous utilisez remember_token
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'password' => static::$password ??= Hash::make('password'), // Default password 'password'
+            'role' => fake()->randomElement(['client', 'provider']), // Default to client or provider, admin created specifically
+            'phone' => fake()->optional()->phoneNumber(),
+            'city' => fake()->optional()->city(),
+            'profile_photo_path' => null, // Or fake()->imageUrl(60, 60) if needed
+            'bio' => fake()->optional()->paragraph(),
+            'email_verified_at' => now(),
+            'remember_token' => Str::random(10),
         ];
     }
 
     /**
      * Indicate that the model's email address should be unverified.
-     * Décommentez cette méthode si vous avez 'email_verified_at'
      */
-    /*
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
-    */
 
     /**
-     * Permet de spécifier un rôle lors de la création via la factory
-     * Exemple : User::factory()->withRole('admin')->create();
+     * Indicate that the user is an admin.
      */
-    public function withRole(string $role): static
+    public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => $role,
+            'role' => 'admin',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a client.
+     */
+    public function client(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'client',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a provider.
+     */
+    public function provider(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'provider',
         ]);
     }
 }

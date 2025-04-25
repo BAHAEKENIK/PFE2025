@@ -2,33 +2,72 @@
 
 namespace App\Models;
 
-use App\Models\ProviderService;
-use App\Models\Review;
-use App\Models\ServiceRequest;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Provider extends Model
 {
     use HasFactory;
-    public function ReceiveRequests():HasMany
-    {
-        return $this->hasMany(ServiceRequest::class,"provider_id");
-    }
 
-    public function user():BelongsTo
+    protected $table = 'providers';
+
+    protected $fillable = [
+        'user_id',
+        'profession',
+        'average_rating',
+        'experience_years',
+        'is_verified',
+        // Add 'business_name', 'availability_details' etc. if added
+    ];
+
+    protected $casts = [
+        'average_rating' => 'float',
+        'experience_years' => 'float',
+        'is_verified' => 'boolean',
+    ];
+
+    /**
+     * Get the user record associated with the provider profile.
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function reviews():HasMany
+    /**
+     * Get the services offered by the provider.
+     */
+    public function services(): BelongsToMany
     {
-        return $this->hasMany(Review::class);
+        return $this->belongsToMany(Service::class, 'provider_services')
+                    ->using(ProviderService::class) // Specify the pivot model
+                    ->withTimestamps(); // If pivot table has timestamps
     }
 
-    public function ProviderServices():HasMany
+    /**
+     * Get the certificates associated with the provider.
+     */
+    public function certificates(): HasMany
     {
-        return $this->hasMany(ProviderService::class);
+        return $this->hasMany(Certificate::class);
+    }
+
+    /**
+     * Get the service requests received by the provider.
+     */
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class);
+    }
+
+    /**
+     * Get the reviews received by the provider.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 }

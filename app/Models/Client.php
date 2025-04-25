@@ -2,27 +2,43 @@
 
 namespace App\Models;
 
-use App\Models\Review;
-use App\Models\ServiceRequest;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
     use HasFactory;
-    public function ServiceRequests():HasMany
-    {
-        return $this->hasMany(ServiceRequest::class,"client_id");
-    }
 
-    public function user():BelongsTo
+    protected $table = 'clients';
+
+    protected $fillable = [
+        'user_id',
+        // Add any other client-specific fields like 'loyalty_points' if added later
+    ];
+
+    /**
+     * Get the user record associated with the client profile.
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function reviews():HasMany
+    /**
+     * Get the service requests made by the client.
+     */
+    public function serviceRequests(): HasMany
     {
-        return $this->hasMany(Review::class,"client_id");
+        return $this->hasMany(ServiceRequest::class);
+    }
+
+    /**
+     * Get the reviews written by the client.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 }

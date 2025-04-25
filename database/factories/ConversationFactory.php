@@ -6,24 +6,35 @@ use App\Models\Conversation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Conversation>
+ */
 class ConversationFactory extends Factory
 {
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
     protected $model = Conversation::class;
 
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
-        $userOne = User::inRandomOrder()->first() ?? User::factory()->create();
-        $userTwo = User::inRandomOrder()->where('id', '!=', $userOne->id)->first();
+        // Ensure two different users
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
 
-        // Fallback if no second user found
-        if (!$userTwo) {
-            $userTwo = User::factory()->create();
-        }
+        // Ensure user_one_id < user_two_id for consistency (optional)
+        $ids = collect([$user1->id, $user2->id])->sort()->values();
 
         return [
-            'user_one_id' => $userOne->id,
-            'user_two_id' => $userTwo->id,
-            'created_at' => now(),
+            'user_one_id' => $ids[0],
+            'user_two_id' => $ids[1],
         ];
     }
 }
