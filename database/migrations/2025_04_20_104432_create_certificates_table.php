@@ -1,4 +1,5 @@
 <?php
+// database/migrations/YYYY_MM_DD_HHMMSS_create_certificates_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,12 +14,17 @@ return new class extends Migration
     {
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('provider_id')->constrained('users')->onDelete('cascade');
+            // *** Changed to link to providers table ***
+            $table->foreignId('provider_id')->constrained('providers')->onDelete('cascade');
             $table->string('title');
-            $table->string('file_path');
-            $table->string('issued_by');
-            $table->date('issued_at');
-            $table->timestamp('created_at')->useCurrent();
+            // *** Path for the uploaded image/file ***
+            $table->string('certificate_image_path')->nullable();
+             // *** Link (URL) for the certificate (optional) ***
+            $table->string('certificate_link')->nullable();
+            $table->string('issued_by')->nullable(); // Issuing authority
+            $table->date('issued_at')->nullable();   // Date issued
+            $table->date('expires_at')->nullable();  // Optional expiry date
+            $table->timestamps(); // Use timestamps()
         });
     }
 

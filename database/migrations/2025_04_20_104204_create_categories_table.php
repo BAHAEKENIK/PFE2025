@@ -1,4 +1,5 @@
 <?php
+// database/migrations/YYYY_MM_DD_HHMMSS_create_categories_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,10 +14,11 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique(); // Category names should likely be unique
+            $table->text('description')->nullable(); // Optional description
+            $table->string('slug')->unique(); // Good for SEO-friendly URLs
             $table->timestamps();
         });
-
     }
 
     /**

@@ -1,5 +1,5 @@
 <?php
-// database/migrations/YYYY_MM_DD_HHMMSS_create_clients_table.php
+// database/migrations/YYYY_MM_DD_HHMMSS_create_admins_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,16 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clients', function (Blueprint $table) {
+        Schema::create('admins', function (Blueprint $table) {
             $table->id();
-            // Links to the user record where role='client'
+             // Links to the user record where role='admin'
             $table->foreignId("user_id")
-                  ->unique() // A user should only have one client profile
+                  ->unique() // A user should only have one admin profile
                   ->constrained('users')
                   ->onUpdate("cascade")
                   ->onDelete("cascade");
-            // Add any client-specific fields here if needed later
-            // e.g., $table->integer('loyalty_points')->default(0);
+            // Add any admin-specific fields if needed
+            // e.g., $table->string('permission_level')->default('superadmin');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clients');
+        Schema::dropIfExists('admins');
     }
 };

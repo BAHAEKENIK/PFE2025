@@ -16,12 +16,15 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['admin', 'client', 'provider']);
+            // Role is crucial for differentiating user types
+            $table->enum('role', ['admin', 'client', 'provider'])->default('client'); // Default to client
             $table->string('phone', 20)->nullable();
             $table->string('city', 100)->nullable();
-            $table->string('profile_photo')->nullable();
-            $table->text('bio')->nullable();
-            $table->timestamps();
+            $table->string('profile_photo_path')->nullable(); // Renamed for clarity, follows Jetstream convention
+            $table->text('bio')->nullable(); // Useful for providers, maybe clients too
+            $table->timestamp('email_verified_at')->nullable(); // Good practice
+            $table->rememberToken();
+            $table->timestamps(); // created_at, updated_at
         });
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
